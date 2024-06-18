@@ -1,4 +1,5 @@
 import { info, warning } from '@actions/core';
+import { context } from '@actions/github';
 import { Octokit } from '@octokit/core';
 import { throttling } from '@octokit/plugin-throttling';
 import { config } from '@probot/octokit-plugin-config';
@@ -20,6 +21,20 @@ export function getOctokit(token) {
                 warning(`SecondaryRateLimit detected for request ${options.method} ${options.url}`);
             },
         },
+    });
+}
+export async function getCommitData(octokit, ref, owner = context.repo.owner, repo = context.repo.repo) {
+    return octokit.request('GET /repos/{owner}/{repo}/commits/{ref}', {
+        owner,
+        repo,
+        ref,
+    });
+}
+export async function getPullRequestIntroducingCommit(octokit, sha, owner = context.repo.owner, repo = context.repo.repo) {
+    return octokit.request('GET /repos/{owner}/{repo}/commits/{commit_sha}/pulls', {
+        owner,
+        repo,
+        commit_sha: sha,
     });
 }
 //# sourceMappingURL=octokit.js.map
