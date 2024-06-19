@@ -35001,7 +35001,7 @@ async function action(octokit) {
                 downstreamData.commits.push({
                     downstream: commit,
                     upstream: upstreamCommit,
-                    branch: branch,
+                    branch: branch.replace('origin/', ''),
                     tag: git.describe(commit),
                     pr: prData,
                 });
@@ -35045,6 +35045,9 @@ async function action(octokit) {
     // comment on PRs
     console.log(JSON.stringify(db, null, 2));
 }
+// TODO:
+// - detect only upstream PRs
+// - comment on PRs
 /* harmony default export */ const src_action = (action);
 
 
@@ -40496,6 +40499,7 @@ async function getPullRequestIntroducingCommit(octokit, sha, owner = github.cont
     if (status !== 200) {
         return undefined;
     }
+    console.log(JSON.stringify(data, null, 2));
     // Check if PR is from the same repository
     const pr = data.find((pr) => pr.base.repo.full_name === `${owner}/${repo}`);
 }

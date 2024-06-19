@@ -52,7 +52,10 @@ export async function getPullRequestIntroducingCommit(
   sha: string,
   owner: string = context.repo.owner,
   repo: string = context.repo.repo
-) {
+): Promise<
+  | Endpoints['GET /repos/{owner}/{repo}/commits/{commit_sha}/pulls']['response']['data'][number]
+  | undefined
+> {
   const { data, status } = await octokit.request(
     'GET /repos/{owner}/{repo}/commits/{commit_sha}/pulls',
     {
@@ -65,6 +68,8 @@ export async function getPullRequestIntroducingCommit(
   if (status !== 200) {
     return undefined;
   }
+
+  console.log(JSON.stringify(data, null, 2));
 
   // Check if PR is from the same repository
   const pr = data.find(

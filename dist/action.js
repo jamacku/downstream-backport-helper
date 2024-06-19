@@ -47,7 +47,7 @@ async function action(octokit) {
                 downstreamData.commits.push({
                     downstream: commit,
                     upstream: upstreamCommit,
-                    branch: branch,
+                    branch: branch.replace('origin/', ''),
                     tag: git.describe(commit),
                     pr: prData,
                 });
@@ -91,5 +91,8 @@ async function action(octokit) {
     // comment on PRs
     console.log(JSON.stringify(db, null, 2));
 }
+// TODO:
+// - detect only upstream PRs
+// - comment on PRs
 export default action;
 //# sourceMappingURL=action.js.map

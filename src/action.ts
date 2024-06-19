@@ -77,7 +77,7 @@ async function action(octokit: CustomOctokit): Promise<void> {
         downstreamData.commits.push({
           downstream: commit,
           upstream: upstreamCommit,
-          branch: branch,
+          branch: branch.replace('origin/', ''),
           tag: git.describe(commit),
           pr: prData,
         });
@@ -135,5 +135,9 @@ async function action(octokit: CustomOctokit): Promise<void> {
   // comment on PRs
   console.log(JSON.stringify(db, null, 2));
 }
+
+// TODO:
+// - detect only upstream PRs
+// - comment on PRs
 
 export default action;
