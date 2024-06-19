@@ -72,8 +72,8 @@ export class Git {
         catch (error) {
             warning(`Unable to describe commit - stderr: '${error}'`);
         }
-        // Describe will return the tag name and number of commits since the tag, separated by a tilde
-        return stdout.trim().split('~')[0];
+        // Describe will return the tag name and number of commits since the tag, separated by a tilde. If commit is tagged it will be marked with a caret.
+        return stdout.trim().split('~')[0].split('^')[0];
     }
 }
 //# sourceMappingURL=git.js.map
