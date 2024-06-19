@@ -1,5 +1,3 @@
-import { z } from 'zod';
-
 import { Config } from './config';
 import { Git } from './git';
 import {
@@ -89,7 +87,6 @@ async function action(octokit: CustomOctokit): Promise<void> {
   let db: Data[] = [];
 
   for (const downstream of data) {
-    console.log(`downstream: ${JSON.stringify(downstream, null, 2)}`);
     for (const commit of downstream.commits) {
       if (!commit.hasOwnProperty('pr') || !commit.pr) {
         continue;

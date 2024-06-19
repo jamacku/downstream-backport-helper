@@ -69,8 +69,6 @@ export async function getPullRequestIntroducingCommit(
     return undefined;
   }
 
-  console.log(JSON.stringify(data, null, 2));
-
   // Check if PR is from the same repository
   return data.find(
     (

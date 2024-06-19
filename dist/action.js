@@ -57,7 +57,6 @@ async function action(octokit) {
     }
     let db = [];
     for (const downstream of data) {
-        console.log(`downstream: ${JSON.stringify(downstream, null, 2)}`);
         for (const commit of downstream.commits) {
             if (!commit.hasOwnProperty('pr') || !commit.pr) {
                 continue;

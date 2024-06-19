@@ -35011,7 +35011,6 @@ async function action(octokit) {
     }
     let db = [];
     for (const downstream of data) {
-        console.log(`downstream: ${JSON.stringify(downstream, null, 2)}`);
         for (const commit of downstream.commits) {
             if (!commit.hasOwnProperty('pr') || !commit.pr) {
                 continue;
@@ -40499,7 +40498,6 @@ async function getPullRequestIntroducingCommit(octokit, sha, owner = github.cont
     if (status !== 200) {
         return undefined;
     }
-    console.log(JSON.stringify(data, null, 2));
     // Check if PR is from the same repository
     return data.find((pr) => pr.base.repo.full_name === `${owner}/${repo}`);
 }
