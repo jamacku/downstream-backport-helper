@@ -25,8 +25,8 @@ export declare const commitSchema: z.ZodObject<{
         html_url: string;
     }>>;
 }, "strip", z.ZodTypeAny, {
-    branch: string;
     tag: string;
+    branch: string;
     downstream: string;
     upstream: string;
     pr?: {
@@ -34,8 +34,8 @@ export declare const commitSchema: z.ZodObject<{
         html_url: string;
     } | undefined;
 }, {
-    branch: string;
     tag: string;
+    branch: string;
     downstream: string;
     upstream: string;
     pr?: {
@@ -63,8 +63,8 @@ export declare const downstreamSchema: z.ZodObject<{
             html_url: string;
         }>>;
     }, "strip", z.ZodTypeAny, {
-        branch: string;
         tag: string;
+        branch: string;
         downstream: string;
         upstream: string;
         pr?: {
@@ -72,8 +72,8 @@ export declare const downstreamSchema: z.ZodObject<{
             html_url: string;
         } | undefined;
     }, {
-        branch: string;
         tag: string;
+        branch: string;
         downstream: string;
         upstream: string;
         pr?: {
@@ -84,8 +84,8 @@ export declare const downstreamSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     name: string;
     commits: {
-        branch: string;
         tag: string;
+        branch: string;
         downstream: string;
         upstream: string;
         pr?: {
@@ -97,8 +97,8 @@ export declare const downstreamSchema: z.ZodObject<{
 }, {
     name: string;
     commits: {
-        branch: string;
         tag: string;
+        branch: string;
         downstream: string;
         upstream: string;
         pr?: {
@@ -130,8 +130,8 @@ export declare const dataSchema: z.ZodObject<{
                 html_url: string;
             }>>;
         }, "strip", z.ZodTypeAny, {
-            branch: string;
             tag: string;
+            branch: string;
             downstream: string;
             upstream: string;
             pr?: {
@@ -139,8 +139,8 @@ export declare const dataSchema: z.ZodObject<{
                 html_url: string;
             } | undefined;
         }, {
-            branch: string;
             tag: string;
+            branch: string;
             downstream: string;
             upstream: string;
             pr?: {
@@ -151,8 +151,8 @@ export declare const dataSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         name: string;
         commits: {
-            branch: string;
             tag: string;
+            branch: string;
             downstream: string;
             upstream: string;
             pr?: {
@@ -164,8 +164,8 @@ export declare const dataSchema: z.ZodObject<{
     }, {
         name: string;
         commits: {
-            branch: string;
             tag: string;
+            branch: string;
             downstream: string;
             upstream: string;
             pr?: {
@@ -179,8 +179,8 @@ export declare const dataSchema: z.ZodObject<{
     downstream: {
         name: string;
         commits: {
-            branch: string;
             tag: string;
+            branch: string;
             downstream: string;
             upstream: string;
             pr?: {
@@ -195,8 +195,8 @@ export declare const dataSchema: z.ZodObject<{
     downstream: {
         name: string;
         commits: {
-            branch: string;
             tag: string;
+            branch: string;
             downstream: string;
             upstream: string;
             pr?: {

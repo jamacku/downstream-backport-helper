@@ -30540,6 +30540,13 @@ __nccwpck_require__.d(__webpack_exports__, {
   "Z": () => (/* binding */ src_action)
 });
 
+// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
+var core = __nccwpck_require__(2186);
+// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
+var github = __nccwpck_require__(5438);
+// EXTERNAL MODULE: ./node_modules/deepmerge/dist/cjs.js
+var cjs = __nccwpck_require__(6323);
+var cjs_default = /*#__PURE__*/__nccwpck_require__.n(cjs);
 ;// CONCATENATED MODULE: ./node_modules/zod/lib/index.mjs
 var util;
 (function (util) {
@@ -34778,13 +34785,6 @@ var z = /*#__PURE__*/Object.freeze({
 
 
 
-// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
-var core = __nccwpck_require__(2186);
-// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
-var github = __nccwpck_require__(5438);
-// EXTERNAL MODULE: ./node_modules/deepmerge/dist/cjs.js
-var cjs = __nccwpck_require__(6323);
-var cjs_default = /*#__PURE__*/__nccwpck_require__.n(cjs);
 ;// CONCATENATED MODULE: ./src/schema/config.ts
 
 const downstreamSchema = z.object({
@@ -34957,7 +34957,6 @@ const dataSchema = z.object({
 
 
 
-
 async function action(octokit) {
     const config = await Config.getConfig(octokit);
     let data = [];
@@ -34996,15 +34995,15 @@ async function action(octokit) {
                     continue;
                 }
                 // Identify upstream PR
-                const prDataUnsafe = (await (0,src_octokit/* getPullRequestIntroducingCommit */.Rb)(octokit, upstreamCommit)).data;
-                const prDataParsed = z.array(prSchema).safeParse(prDataUnsafe);
-                const prData = prDataParsed.success ? prDataParsed.data : [];
+                const prDataUnsafe = await (0,src_octokit/* getPullRequestIntroducingCommit */.Rb)(octokit, upstreamCommit);
+                const prDataParsed = prSchema.safeParse(prDataUnsafe);
+                const prData = prDataParsed.success ? prDataParsed.data : undefined;
                 downstreamData.commits.push({
                     downstream: commit,
                     upstream: upstreamCommit,
                     branch: branch,
                     tag: git.describe(commit),
-                    pr: Array.isArray(prData) ? prData[0] : undefined,
+                    pr: prData,
                 });
             }
         }
@@ -40489,11 +40488,16 @@ async function getCommitData(octokit, ref, owner = github.context.repo.owner, re
     });
 }
 async function getPullRequestIntroducingCommit(octokit, sha, owner = github.context.repo.owner, repo = github.context.repo.repo) {
-    return octokit.request('GET /repos/{owner}/{repo}/commits/{commit_sha}/pulls', {
+    const { data, status } = await octokit.request('GET /repos/{owner}/{repo}/commits/{commit_sha}/pulls', {
         owner,
         repo,
         commit_sha: sha,
     });
+    if (status !== 200) {
+        return undefined;
+    }
+    // Check if PR is from the same repository
+    const pr = data.find((pr) => pr.base.repo.full_name === `${owner}/${repo}`);
 }
 
 

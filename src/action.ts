@@ -67,19 +67,19 @@ async function action(octokit: CustomOctokit): Promise<void> {
         }
 
         // Identify upstream PR
-        const prDataUnsafe = (
-          await getPullRequestIntroducingCommit(octokit, upstreamCommit)
-        ).data;
-
-        const prDataParsed = z.array(prSchema).safeParse(prDataUnsafe);
-        const prData = prDataParsed.success ? prDataParsed.data : [];
+        const prDataUnsafe = await getPullRequestIntroducingCommit(
+          octokit,
+          upstreamCommit
+        );
+        const prDataParsed = prSchema.safeParse(prDataUnsafe);
+        const prData = prDataParsed.success ? prDataParsed.data : undefined;
 
         downstreamData.commits.push({
           downstream: commit,
           upstream: upstreamCommit,
           branch: branch,
           tag: git.describe(commit),
-          pr: Array.isArray(prData) ? prData[0] : undefined,
+          pr: prData,
         });
       }
     }

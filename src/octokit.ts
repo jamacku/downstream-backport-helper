@@ -2,6 +2,7 @@ import { info, warning } from '@actions/core';
 import { context } from '@actions/github';
 import { Octokit } from '@octokit/core';
 import { throttling } from '@octokit/plugin-throttling';
+import { Endpoints } from '@octokit/types';
 import { config } from '@probot/octokit-plugin-config';
 
 const CustomOctokit = Octokit.plugin(config, throttling);
@@ -38,7 +39,7 @@ export async function getCommitData(
   ref: string,
   owner: string = context.repo.owner,
   repo: string = context.repo.repo
-) {
+): Promise<Endpoints['GET /repos/{owner}/{repo}/commits/{ref}']['response']> {
   return octokit.request('GET /repos/{owner}/{repo}/commits/{ref}', {
     owner,
     repo,
@@ -52,12 +53,23 @@ export async function getPullRequestIntroducingCommit(
   owner: string = context.repo.owner,
   repo: string = context.repo.repo
 ) {
-  return octokit.request(
+  const { data, status } = await octokit.request(
     'GET /repos/{owner}/{repo}/commits/{commit_sha}/pulls',
     {
       owner,
       repo,
       commit_sha: sha,
     }
+  );
+
+  if (status !== 200) {
+    return undefined;
+  }
+
+  // Check if PR is from the same repository
+  const pr = data.find(
+    (
+      pr: Endpoints['GET /repos/{owner}/{repo}/commits/{commit_sha}/pulls']['response']['data'][number]
+    ) => pr.base.repo.full_name === `${owner}/${repo}`
   );
 }
