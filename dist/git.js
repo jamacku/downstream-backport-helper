@@ -30,7 +30,10 @@ export class Git {
         catch (error) {
             warning(`Unable to list branches - stderr: '${error}'`);
         }
-        const branches = stdout.split('\n').map(branch => branch.trim());
+        let branches = stdout.split('\n').map(branch => branch.trim());
+        // Remove the last element if it is an empty string
+        branches =
+            branches[branches.length - 1] === '' ? branches.slice(0, -1) : branches;
         branches.map(branch => info(`Branch: '${branch}'`));
         // When no branches are found, stdout will be an empty string. We want to return an empty array in this case
         return branches.length === 1 && branches[0] === '' ? [] : branches;

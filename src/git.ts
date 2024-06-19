@@ -35,7 +35,10 @@ export class Git {
       warning(`Unable to list branches - stderr: '${error}'`);
     }
 
-    const branches = stdout.split('\n').map(branch => branch.trim());
+    let branches = stdout.split('\n').map(branch => branch.trim());
+    // Remove the last element if it is an empty string
+    branches =
+      branches[branches.length - 1] === '' ? branches.slice(0, -1) : branches;
 
     branches.map(branch => info(`Branch: '${branch}'`));
 
