@@ -17,7 +17,6 @@ async function action(octokit) {
             alias: downstream['status-title'],
             commits: [],
         };
-        console.log(`branches: ${branches}`);
         for (const branch of branches) {
             git.checkout(branch);
             const commits = git.log(config.lookupInterval);
@@ -44,6 +43,7 @@ async function action(octokit) {
                 }
                 // Identify upstream PR
                 const prDataUnsafe = (await getPullRequestIntroducingCommit(octokit, upstreamCommit)).data;
+                console.log(`prDataUnsafe: ${JSON.stringify(prDataUnsafe)}`);
                 const prDataParsed = z.array(prSchema).safeParse(prDataUnsafe);
                 const prData = prDataParsed.success ? prDataParsed.data : [];
                 downstreamData.commits.push({

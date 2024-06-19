@@ -34869,6 +34869,7 @@ class Git {
             (0,core.warning)(`Unable to list branches - stderr: '${error}'`);
         }
         const branches = stdout.split('\n').map(branch => branch.trim());
+        branches.map(branch => (0,core.info)(`Branch: '${branch}'`));
         // When no branches are found, stdout will be an empty string. We want to return an empty array in this case
         return branches.length === 1 && branches[0] === '' ? [] : branches;
     }
@@ -34968,7 +34969,6 @@ async function action(octokit) {
             alias: downstream['status-title'],
             commits: [],
         };
-        console.log(`branches: ${branches}`);
         for (const branch of branches) {
             git.checkout(branch);
             const commits = git.log(config.lookupInterval);
@@ -34995,6 +34995,7 @@ async function action(octokit) {
                 }
                 // Identify upstream PR
                 const prDataUnsafe = (await (0,src_octokit/* getPullRequestIntroducingCommit */.Rb)(octokit, upstreamCommit)).data;
+                console.log(`prDataUnsafe: ${JSON.stringify(prDataUnsafe)}`);
                 const prDataParsed = z.array(prSchema).safeParse(prDataUnsafe);
                 const prData = prDataParsed.success ? prDataParsed.data : [];
                 downstreamData.commits.push({
