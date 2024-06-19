@@ -33,6 +33,7 @@
     "@octokit/types": "^13.5.0",
     "@probot/octokit-plugin-config": "^3.0.2",
     "deepmerge": "^4.3.1",
+    "issue-metadata": "^0.1.10",
     "zod": "^3.23.8"
   },
   "devDependencies": {

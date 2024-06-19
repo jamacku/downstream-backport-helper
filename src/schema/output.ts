@@ -6,7 +6,10 @@ export const prSchema = z.object({
 });
 
 export const commitSchema = z.object({
-  upstream: z.string(),
+  upstream: z.object({
+    sha: z.string(),
+    message: z.string(),
+  }),
   downstream: z.string(),
   branch: z.string(),
   tag: z.string(),

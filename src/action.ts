@@ -1,13 +1,20 @@
 import { Config } from './config';
 import { Git } from './git';
+import { Issue } from './issue';
 import {
   CustomOctokit,
   getCommitData,
   getPullRequestIntroducingCommit,
 } from './octokit';
-import { getArrayIndex, getCherryPicks } from './util';
+import {
+  getArrayIndex,
+  getBranchUrl,
+  getCherryPicks,
+  getCommitUrl,
+  getTagUrl,
+} from './util';
 
-import { Data, Downstream, prSchema } from './schema/output';
+import { Commit, Data, Downstream, prSchema } from './schema/output';
 
 async function action(octokit: CustomOctokit): Promise<void> {
   const config = await Config.getConfig(octokit);
@@ -46,7 +53,7 @@ async function action(octokit: CustomOctokit): Promise<void> {
         }
 
         // Identify upstream commit
-        let upstreamCommit: string | undefined = undefined;
+        let upstreamCommit: Commit['upstream'] | undefined = undefined;
         for (const cherryPick of cherryPicks) {
           const { data, status } = await getCommitData(octokit, cherryPick);
 
@@ -54,7 +61,10 @@ async function action(octokit: CustomOctokit): Promise<void> {
             continue;
           }
 
-          upstreamCommit = cherryPick;
+          upstreamCommit = {
+            sha: cherryPick,
+            message: data.commit.message,
+          };
           // The first cherry-pick commit should be good enough.
           break;
         }
@@ -67,7 +77,7 @@ async function action(octokit: CustomOctokit): Promise<void> {
         // Identify upstream PR
         const prDataUnsafe = await getPullRequestIntroducingCommit(
           octokit,
-          upstreamCommit
+          upstreamCommit.sha
         );
         const prDataParsed = prSchema.safeParse(prDataUnsafe);
         const prData = prDataParsed.success ? prDataParsed.data : undefined;
@@ -129,12 +139,33 @@ async function action(octokit: CustomOctokit): Promise<void> {
     }
   }
 
-  // comment on PRs
-  console.log(JSON.stringify(db, null, 2));
-}
+  for (const pr of db) {
+    let message: string[] = [];
+    message.push(
+      '## Stable Backport Notice\n\nSome commits from this PR were backported to the downstream stable repository.\n'
+    );
 
-// TODO:
-// - detect only upstream PRs
-// - comment on PRs
+    for (const downstream of pr.downstream) {
+      message.push(`### ${downstream.alias ?? downstream.name}\n`);
+
+      message.push(
+        '| commit | backport | downstream | tag |\n|---|:---:|:---:|:---:|'
+      );
+
+      for (const commit of downstream.commits) {
+        message.push(
+          `| ${getCommitUrl(commit.upstream.sha)} - _${commit.upstream.message}_ | ${getCommitUrl(commit.downstream, downstream.name)} | \`[${commit.branch}](${getBranchUrl(commit.branch, downstream.name)})\` | \`${
+            commit.tag === ''
+              ? 'unreleased'
+              : `[${commit.tag}](${getTagUrl(commit.tag, downstream.name)})`
+          }\` |`
+        );
+      }
+    }
+
+    const issue = await Issue.getIssue(octokit, +pr.pr);
+    await issue.publishComment(message.join('\n'));
+  }
+}
 
 export default action;
