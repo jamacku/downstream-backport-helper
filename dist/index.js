@@ -34859,7 +34859,7 @@ class Git {
     }
     listBranches(list) {
         const glob = list.map(glob => `"${glob}"`).join(' ');
-        const gitBranch = `git --no-pager branch -r --list ${glob}`;
+        const gitBranch = `git -C ${this.repoDir} --no-pager branch -r --list ${glob}`;
         (0,core.info)(gitBranch);
         let stdout = '';
         try {

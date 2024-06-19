@@ -25,7 +25,7 @@ export class Git {
   listBranches(list: string[]): string[] {
     const glob = list.map(glob => `"${glob}"`).join(' ');
 
-    const gitBranch = `git --no-pager branch -r --list ${glob}`;
+    const gitBranch = `git -C ${this.repoDir} --no-pager branch -r --list ${glob}`;
     info(gitBranch);
 
     let stdout = '';
