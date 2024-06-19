@@ -34932,8 +34932,8 @@ function getArrayIndex(array, key, value) {
 ;// CONCATENATED MODULE: ./src/schema/output.ts
 
 const prSchema = z.object({
-    number: z.string(),
-    url: z.string(),
+    number: z.coerce.string(),
+    html_url: z.string(),
 });
 const commitSchema = z.object({
     upstream: z.string(),

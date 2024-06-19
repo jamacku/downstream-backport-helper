@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const prSchema = z.object({
-  number: z.string(),
-  url: z.string(),
+  number: z.coerce.string(),
+  html_url: z.string(),
 });
 
 export const commitSchema = z.object({
