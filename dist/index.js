@@ -34872,7 +34872,6 @@ class Git {
         // Remove the last element if it is an empty string
         branches =
             branches[branches.length - 1] === '' ? branches.slice(0, -1) : branches;
-        branches.map(branch => (0,core.info)(`Branch: '${branch}'`));
         // When no branches are found, stdout will be an empty string. We want to return an empty array in this case
         return branches.length === 1 && branches[0] === '' ? [] : branches;
     }
@@ -34998,10 +34997,8 @@ async function action(octokit) {
                 }
                 // Identify upstream PR
                 const prDataUnsafe = (await (0,src_octokit/* getPullRequestIntroducingCommit */.Rb)(octokit, upstreamCommit)).data;
-                console.log(`prDataUnsafe: ${JSON.stringify(prDataUnsafe)}`);
                 const prDataParsed = z.array(prSchema).safeParse(prDataUnsafe);
                 const prData = prDataParsed.success ? prDataParsed.data : [];
-                console.log(`prData: ${JSON.stringify(prData)}`);
                 downstreamData.commits.push({
                     downstream: commit,
                     upstream: upstreamCommit,
@@ -35013,9 +35010,9 @@ async function action(octokit) {
         }
         data.push(downstreamData);
     }
-    console.log(JSON.stringify(data, null, 2));
     let db = [];
     for (const downstream of data) {
+        console.log(`downstream: ${JSON.stringify(downstream, null, 2)}`);
         for (const commit of downstream.commits) {
             if (!commit.hasOwnProperty('pr') || !commit.pr) {
                 continue;

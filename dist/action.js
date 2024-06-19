@@ -43,10 +43,8 @@ async function action(octokit) {
                 }
                 // Identify upstream PR
                 const prDataUnsafe = (await getPullRequestIntroducingCommit(octokit, upstreamCommit)).data;
-                console.log(`prDataUnsafe: ${JSON.stringify(prDataUnsafe)}`);
                 const prDataParsed = z.array(prSchema).safeParse(prDataUnsafe);
                 const prData = prDataParsed.success ? prDataParsed.data : [];
-                console.log(`prData: ${JSON.stringify(prData)}`);
                 downstreamData.commits.push({
                     downstream: commit,
                     upstream: upstreamCommit,
@@ -58,9 +56,9 @@ async function action(octokit) {
         }
         data.push(downstreamData);
     }
-    console.log(JSON.stringify(data, null, 2));
     let db = [];
     for (const downstream of data) {
+        console.log(`downstream: ${JSON.stringify(downstream, null, 2)}`);
         for (const commit of downstream.commits) {
             if (!commit.hasOwnProperty('pr') || !commit.pr) {
                 continue;
