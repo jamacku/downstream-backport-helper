@@ -34968,6 +34968,7 @@ async function action(octokit) {
             alias: downstream['status-title'],
             commits: [],
         };
+        console.log(`branches: ${branches}`);
         for (const branch of branches) {
             git.checkout(branch);
             const commits = git.log(config.lookupInterval);
@@ -35007,6 +35008,7 @@ async function action(octokit) {
         }
         data.push(downstreamData);
     }
+    console.log(JSON.stringify(data, null, 2));
     let db = [];
     for (const downstream of data) {
         for (const commit of downstream.commits) {

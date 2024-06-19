@@ -28,6 +28,8 @@ async function action(octokit: CustomOctokit): Promise<void> {
       commits: [],
     };
 
+    console.log(`branches: ${branches}`);
+
     for (const branch of branches) {
       git.checkout(branch);
       const commits = git.log(config.lookupInterval);
@@ -74,8 +76,6 @@ async function action(octokit: CustomOctokit): Promise<void> {
         const prDataParsed = z.array(prSchema).safeParse(prDataUnsafe);
         const prData = prDataParsed.success ? prDataParsed.data : [];
 
-        console.log(prData);
-
         downstreamData.commits.push({
           downstream: commit,
           upstream: upstreamCommit,
@@ -87,6 +87,8 @@ async function action(octokit: CustomOctokit): Promise<void> {
     }
     data.push(downstreamData);
   }
+
+  console.log(JSON.stringify(data, null, 2));
 
   let db: Data[] = [];
 
