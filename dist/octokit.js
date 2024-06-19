@@ -41,6 +41,6 @@ export async function getPullRequestIntroducingCommit(octokit, sha, owner = cont
     }
     console.log(JSON.stringify(data, null, 2));
     // Check if PR is from the same repository
-    const pr = data.find((pr) => pr.base.repo.full_name === `${owner}/${repo}`);
+    return data.find((pr) => pr.base.repo.full_name === `${owner}/${repo}`);
 }
 //# sourceMappingURL=octokit.js.map

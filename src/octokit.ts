@@ -72,7 +72,7 @@ export async function getPullRequestIntroducingCommit(
   console.log(JSON.stringify(data, null, 2));
 
   // Check if PR is from the same repository
-  const pr = data.find(
+  return data.find(
     (
       pr: Endpoints['GET /repos/{owner}/{repo}/commits/{commit_sha}/pulls']['response']['data'][number]
     ) => pr.base.repo.full_name === `${owner}/${repo}`
