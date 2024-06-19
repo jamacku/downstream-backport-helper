@@ -46,6 +46,7 @@ async function action(octokit) {
                 console.log(`prDataUnsafe: ${JSON.stringify(prDataUnsafe)}`);
                 const prDataParsed = z.array(prSchema).safeParse(prDataUnsafe);
                 const prData = prDataParsed.success ? prDataParsed.data : [];
+                console.log(`prData: ${JSON.stringify(prData)}`);
                 downstreamData.commits.push({
                     downstream: commit,
                     upstream: upstreamCommit,
