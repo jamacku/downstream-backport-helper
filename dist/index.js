@@ -35032,7 +35032,14 @@ async function action(octokit) {
                 continue;
             }
             const downstreamIndex = getArrayIndex(db[index].downstream, 'name', downstream.name);
-            //? NOTE: downstreamIndex will never be -1 because it is initialized in the previous block
+            if (downstreamIndex === -1) {
+                db[index].downstream.push({
+                    name: downstream.name,
+                    alias: downstream.alias,
+                    commits: [commit],
+                });
+                continue;
+            }
             db[index].downstream[downstreamIndex].commits.push(commit);
         }
     }
