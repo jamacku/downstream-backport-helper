@@ -74,6 +74,8 @@ async function action(octokit: CustomOctokit): Promise<void> {
         const prDataParsed = z.array(prSchema).safeParse(prDataUnsafe);
         const prData = prDataParsed.success ? prDataParsed.data : [];
 
+        console.log(prData);
+
         downstreamData.commits.push({
           downstream: commit,
           upstream: upstreamCommit,
