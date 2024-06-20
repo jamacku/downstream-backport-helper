@@ -152,8 +152,8 @@ async function action(octokit: CustomOctokit): Promise<void> {
 
     message.push(introMessage.join('\n'));
 
-    let downstreamMessage: string[] = [];
     for (const downstream of pr.downstream) {
+      let downstreamMessage: string[] = [];
       downstreamMessage.push(
         `### [${downstream.alias ?? downstream.name}](${getRepoUrl(downstream.name)})\n`
       );
@@ -173,9 +173,9 @@ async function action(octokit: CustomOctokit): Promise<void> {
       }
 
       downstreamMessage.push('\n');
+      message.push(downstreamMessage.join('\n'));
     }
 
-    message.push(downstreamMessage.join('\n'));
     const issue = await Issue.getIssue(octokit, +pr.pr);
     await issue.publishComment(message.join('\n---\n'));
   }

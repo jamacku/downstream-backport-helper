@@ -99,8 +99,8 @@ async function action(octokit) {
 > [!NOTE]
 > Some commits from this PR were backported to the downstream stable repository.\n`);
         message.push(introMessage.join('\n'));
-        let downstreamMessage = [];
         for (const downstream of pr.downstream) {
+            let downstreamMessage = [];
             downstreamMessage.push(`### [${downstream.alias ?? downstream.name}](${getRepoUrl(downstream.name)})\n`);
             downstreamMessage.push('| commit | backport | downstream | tag |\n|---|:---:|:---:|:---:|');
             for (const commit of downstream.commits) {
@@ -109,8 +109,8 @@ async function action(octokit) {
                     : `[\`${commit.tag}\`](${getTagUrl(commit.tag, downstream.name)})`} |`);
             }
             downstreamMessage.push('\n');
+            message.push(downstreamMessage.join('\n'));
         }
-        message.push(downstreamMessage.join('\n'));
         const issue = await Issue.getIssue(octokit, +pr.pr);
         await issue.publishComment(message.join('\n---\n'));
     }
