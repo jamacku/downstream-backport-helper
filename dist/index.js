@@ -35616,7 +35616,7 @@ class Git {
             stdout = (0,external_node_child_process_namespaceObject.execSync)(gitDescribe).toString();
         }
         catch (error) {
-            (0,core.warning)(`Unable to describe commit - stderr: '${error}'`);
+            (0,core.info)(`Unable to describe commit - stderr: '${error}'`);
         }
         // Describe will return the tag name and number of commits since the tag, separated by a tilde. If commit is tagged it will be marked with a caret.
         return stdout.trim().split('~')[0].split('^')[0];
@@ -35745,6 +35745,8 @@ class Issue {
         this.metadata = metadata;
     }
     async publishComment(content) {
+        (0,core.info)(`Publishing comment to PR #${this.number}`);
+        (0,core.debug)(`Comment content: ${JSON.stringify(content, null, 2)}`);
         if (this.metadata.commentID) {
             // Check if the comment is already up to date
             const currentComment = await this.getComment();
@@ -35813,14 +35815,17 @@ function getCherryPicks(message) {
 function getArrayIndex(array, key, value) {
     return array.findIndex(entry => entry[key] === value);
 }
+function getRepoUrl(repoFullName = `${github.context.repo.owner}/${github.context.repo.repo}`) {
+    return `https://github.com/${repoFullName}`;
+}
 function getCommitUrl(sha, repoFullName = `${github.context.repo.owner}/${github.context.repo.repo}`) {
-    return `https://github.com/${repoFullName}/commit/${sha}`;
+    return `${getRepoUrl(repoFullName)}/commit/${sha}`;
 }
 function getBranchUrl(branch, repoFullName = `${github.context.repo.owner}/${github.context.repo.repo}`) {
-    return `https://github.com/${repoFullName}/tree/${branch}`;
+    return `${getRepoUrl(repoFullName)}/tree/${branch}`;
 }
 function getTagUrl(tag, repoFullName = `${github.context.repo.owner}/${github.context.repo.repo}`) {
-    return `https://github.com/${repoFullName}/releases/tag/${tag}`;
+    return `${getRepoUrl(repoFullName)}/releases/tag/${tag}`;
 }
 
 ;// CONCATENATED MODULE: ./src/schema/output.ts
@@ -35945,20 +35950,34 @@ async function action(octokit) {
     }
     for (const pr of db) {
         let message = [];
-        message.push('## Stable Backport Notice\n\nSome commits from this PR were backported to the downstream stable repository.\n');
+        let introMessage = [];
+        introMessage.push('## Stable Backport Notice\n');
+        introMessage.push(`
+> [!NOTE]
+> Some commits from this PR were backported to the downstream stable repository.\n`);
+        message.push(introMessage.join('\n'));
+        let downstreamMessage = [];
         for (const downstream of pr.downstream) {
-            message.push(`### ${downstream.alias ?? downstream.name}\n`);
-            message.push('| commit | backport | downstream | tag |\n|---|:---:|:---:|:---:|');
+            downstreamMessage.push(`### [${downstream.alias ?? downstream.name}](${getRepoUrl(downstream.name)})\n`);
+            downstreamMessage.push('| commit | backport | downstream | tag |\n|---|:---:|:---:|:---:|');
             for (const commit of downstream.commits) {
-                message.push(`| ${getCommitUrl(commit.upstream.sha)} - _${commit.upstream.message}_ | ${getCommitUrl(commit.downstream, downstream.name)} | \`[${commit.branch}](${getBranchUrl(commit.branch, downstream.name)})\` | \`${commit.tag === ''
-                    ? 'unreleased'
-                    : `[${commit.tag}](${getTagUrl(commit.tag, downstream.name)})`}\` |`);
+                downstreamMessage.push(`| ${getCommitUrl(commit.upstream.sha)} - _${commit.upstream.message}_ | ${getCommitUrl(commit.downstream, downstream.name)} | [\`${commit.branch}\`](${getBranchUrl(commit.branch, downstream.name)}) | ${commit.tag === ''
+                    ? '`unreleased`'
+                    : `[\`${commit.tag}\`](${getTagUrl(commit.tag, downstream.name)})`} |`);
             }
+            downstreamMessage.push('\n');
         }
+        message.push(downstreamMessage.join('\n'));
         const issue = await Issue.getIssue(octokit, +pr.pr);
-        await issue.publishComment(message.join('\n'));
+        await issue.publishComment(message.join('\n---\n'));
     }
 }
+// TODO:
+// - Add summary message
+//! - warning -> info
+//! - group logs by branch
+// - add support for labels
+//! - add tests
 /* harmony default export */ const src_action = (action);
 
 
@@ -35990,22 +36009,6 @@ catch (error) {
     }
     (0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed)(message);
 }
-// TODO: example comment
-// | commit | backport | stable | tag |
-// |---|:---:|:---:|:---:|
-// | https://github.com/systemd/systemd/commit/769838b4831b346ee63a851cb38a5c47c468bdfa - _core: refuse dbus activation if dbus is not running_ | https://github.com/systemd/systemd-stable/commit/769838b4831b346ee63a851cb38a5c47c468bdfa | `v255` | [`v255.6`](https://github.com/systemd/systemd-stable/releases/tag/v255.6) |
-// | https://github.com/systemd/systemd/commit/769838b4831b346ee63a851cb38a5c47c468bdfa - _core: refuse dbus activation if dbus is not running_ | https://github.com/systemd/systemd-stable/commit/769838b4831b346ee63a851cb38a5c47c468bdfa | `v256` | _unreleased_ |
-// ## Stable Backport Notice
-// Some commits from this PR were backported to the downstream stable repository.
-// ### systemd-stable
-// | commit | backport | downstream | tag |
-// |---|:---:|:---:|:---:|
-// | https://github.com/systemd/systemd/commit/e2b812c8045b574fa164d850ef50f426ae9e1df5 - _string-util: introduce string_is_safe_ascii helper_ | https://github.com/systemd/systemd-stable/commit/0b5a3992655735e45f78a3461a1934193d28578b | [`v255-stable`](https://github.com/systemd/systemd-stable/tree/v255-stable) | [`v255.7`](https://github.com/systemd/systemd-stable/releases/tag/v255.7) |
-// | https://github.com/systemd/systemd/commit/e2b812c8045b574fa164d850ef50f426ae9e1df5 - _string-util: introduce string_is_safe_ascii helper_ | https://github.com/systemd/systemd-stable/commit/0b5a3992655735e45f78a3461a1934193d28578b | [`v256-stable`](https://github.com/systemd/systemd-stable/tree/v256-stable) | `unreleased` |
-// ### systemd-rhel9
-// | commit | backport | downstream | tag |
-// |---|:---:|:---:|:---:|
-// | https://github.com/systemd/systemd/commit/e2b812c8045b574fa164d850ef50f426ae9e1df5 - _string-util: introduce string_is_safe_ascii helper_ | https://github.com/redhat-plumbers/systemd-rhel9/commit/0b5a3992655735e45f78a3461a1934193d28578b | [`rhel-9.5.0`](https://github.com/systemd/systemd-stable/tree/v256-stable) | `unreleased` |
 
 __webpack_async_result__();
 } catch(e) { __webpack_async_result__(e); } }, 1);

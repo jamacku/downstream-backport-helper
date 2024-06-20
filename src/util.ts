@@ -17,23 +17,29 @@ export function getArrayIndex<T>(
   return array.findIndex(entry => entry[key] === value);
 }
 
+export function getRepoUrl(
+  repoFullName: string = `${context.repo.owner}/${context.repo.repo}`
+): string {
+  return `https://github.com/${repoFullName}`;
+}
+
 export function getCommitUrl(
   sha: string,
   repoFullName: string = `${context.repo.owner}/${context.repo.repo}`
 ): string {
-  return `https://github.com/${repoFullName}/commit/${sha}`;
+  return `${getRepoUrl(repoFullName)}/commit/${sha}`;
 }
 
 export function getBranchUrl(
   branch: string,
   repoFullName: string = `${context.repo.owner}/${context.repo.repo}`
 ): string {
-  return `https://github.com/${repoFullName}/tree/${branch}`;
+  return `${getRepoUrl(repoFullName)}/tree/${branch}`;
 }
 
 export function getTagUrl(
   tag: string,
   repoFullName: string = `${context.repo.owner}/${context.repo.repo}`
 ): string {
-  return `https://github.com/${repoFullName}/releases/tag/${tag}`;
+  return `${getRepoUrl(repoFullName)}/releases/tag/${tag}`;
 }

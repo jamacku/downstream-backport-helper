@@ -11,10 +11,12 @@ import {
   getBranchUrl,
   getCherryPicks,
   getCommitUrl,
+  getRepoUrl,
   getTagUrl,
 } from './util';
 
 import { Commit, Data, Downstream, prSchema } from './schema/output';
+import { info } from '@actions/core';
 
 async function action(octokit: CustomOctokit): Promise<void> {
   const config = await Config.getConfig(octokit);
@@ -141,31 +143,49 @@ async function action(octokit: CustomOctokit): Promise<void> {
 
   for (const pr of db) {
     let message: string[] = [];
-    message.push(
-      '## Stable Backport Notice\n\nSome commits from this PR were backported to the downstream stable repository.\n'
-    );
+    let introMessage: string[] = [];
 
+    introMessage.push('## Stable Backport Notice\n');
+    introMessage.push(`
+> [!NOTE]
+> Some commits from this PR were backported to the downstream stable repository.\n`);
+
+    message.push(introMessage.join('\n'));
+
+    let downstreamMessage: string[] = [];
     for (const downstream of pr.downstream) {
-      message.push(`### ${downstream.alias ?? downstream.name}\n`);
+      downstreamMessage.push(
+        `### [${downstream.alias ?? downstream.name}](${getRepoUrl(downstream.name)})\n`
+      );
 
-      message.push(
+      downstreamMessage.push(
         '| commit | backport | downstream | tag |\n|---|:---:|:---:|:---:|'
       );
 
       for (const commit of downstream.commits) {
-        message.push(
-          `| ${getCommitUrl(commit.upstream.sha)} - _${commit.upstream.message}_ | ${getCommitUrl(commit.downstream, downstream.name)} | \`[${commit.branch}](${getBranchUrl(commit.branch, downstream.name)})\` | \`${
+        downstreamMessage.push(
+          `| ${getCommitUrl(commit.upstream.sha)} - _${commit.upstream.message}_ | ${getCommitUrl(commit.downstream, downstream.name)} | [\`${commit.branch}\`](${getBranchUrl(commit.branch, downstream.name)}) | ${
             commit.tag === ''
-              ? 'unreleased'
-              : `[${commit.tag}](${getTagUrl(commit.tag, downstream.name)})`
-          }\` |`
+              ? '`unreleased`'
+              : `[\`${commit.tag}\`](${getTagUrl(commit.tag, downstream.name)})`
+          } |`
         );
       }
+
+      downstreamMessage.push('\n');
     }
 
+    message.push(downstreamMessage.join('\n'));
     const issue = await Issue.getIssue(octokit, +pr.pr);
-    await issue.publishComment(message.join('\n'));
+    await issue.publishComment(message.join('\n---\n'));
   }
 }
+
+// TODO:
+// - Add summary message
+//! - warning -> info
+//! - group logs by branch
+// - add support for labels
+//! - add tests
 
 export default action;

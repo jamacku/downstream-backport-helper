@@ -1,4 +1,4 @@
-import { warning } from '@actions/core';
+import { debug, info, warning } from '@actions/core';
 import { context } from '@actions/github';
 
 import { Metadata } from './metadata';
@@ -12,6 +12,9 @@ export class Issue {
   ) {}
 
   async publishComment(content: string) {
+    info(`Publishing comment to PR #${this.number}`);
+    debug(`Comment content: ${JSON.stringify(content, null, 2)}`);
+
     if (this.metadata.commentID) {
       // Check if the comment is already up to date
       const currentComment = await this.getComment();
