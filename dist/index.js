@@ -35861,12 +35861,14 @@ const dataSchema = z.object({
 
 
 
+
 async function action(octokit) {
     const config = await Config.getConfig(octokit);
     let data = [];
     for (const downstream of config.downstream) {
         const DownstreamOwnerAndRepo = `${downstream.owner}/${downstream.repo}`;
         const git = new Git(downstream['git-server'], DownstreamOwnerAndRepo);
+        (0,core.startGroup)(`Processing ${DownstreamOwnerAndRepo}`);
         git.clone();
         const branches = git.listBranches(downstream.branches);
         let downstreamData = {
@@ -35875,6 +35877,7 @@ async function action(octokit) {
             commits: [],
         };
         for (const branch of branches) {
+            (0,core.startGroup)(`Processing branch ${branch}`);
             git.checkout(branch);
             const commits = git.log(config.lookupInterval);
             for (const commit of commits) {
@@ -35913,7 +35916,9 @@ async function action(octokit) {
                     pr: prData,
                 });
             }
+            (0,core.endGroup)();
         }
+        (0,core.endGroup)();
         data.push(downstreamData);
     }
     let db = [];
@@ -35974,7 +35979,6 @@ async function action(octokit) {
 }
 // TODO:
 // - Add summary message
-//! - warning -> info
 //! - group logs by branch
 // - add support for labels
 //! - add tests

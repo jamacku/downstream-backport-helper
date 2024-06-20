@@ -16,7 +16,7 @@ import {
 } from './util';
 
 import { Commit, Data, Downstream, prSchema } from './schema/output';
-import { info } from '@actions/core';
+import { startGroup, endGroup } from '@actions/core';
 
 async function action(octokit: CustomOctokit): Promise<void> {
   const config = await Config.getConfig(octokit);
@@ -26,6 +26,8 @@ async function action(octokit: CustomOctokit): Promise<void> {
   for (const downstream of config.downstream) {
     const DownstreamOwnerAndRepo = `${downstream.owner}/${downstream.repo}`;
     const git = new Git(downstream['git-server'], DownstreamOwnerAndRepo);
+
+    startGroup(`Processing ${DownstreamOwnerAndRepo}`);
     git.clone();
     const branches = git.listBranches(downstream.branches);
 
@@ -36,6 +38,7 @@ async function action(octokit: CustomOctokit): Promise<void> {
     };
 
     for (const branch of branches) {
+      startGroup(`Processing branch ${branch}`);
       git.checkout(branch);
       const commits = git.log(config.lookupInterval);
 
@@ -92,7 +95,9 @@ async function action(octokit: CustomOctokit): Promise<void> {
           pr: prData,
         });
       }
+      endGroup();
     }
+    endGroup();
     data.push(downstreamData);
   }
 
@@ -183,7 +188,6 @@ async function action(octokit: CustomOctokit): Promise<void> {
 
 // TODO:
 // - Add summary message
-//! - warning -> info
 //! - group logs by branch
 // - add support for labels
 //! - add tests

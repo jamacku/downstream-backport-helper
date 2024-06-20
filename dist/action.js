@@ -4,12 +4,14 @@ import { Issue } from './issue';
 import { getCommitData, getPullRequestIntroducingCommit, } from './octokit';
 import { getArrayIndex, getBranchUrl, getCherryPicks, getCommitUrl, getRepoUrl, getTagUrl, } from './util';
 import { prSchema } from './schema/output';
+import { startGroup, endGroup } from '@actions/core';
 async function action(octokit) {
     const config = await Config.getConfig(octokit);
     let data = [];
     for (const downstream of config.downstream) {
         const DownstreamOwnerAndRepo = `${downstream.owner}/${downstream.repo}`;
         const git = new Git(downstream['git-server'], DownstreamOwnerAndRepo);
+        startGroup(`Processing ${DownstreamOwnerAndRepo}`);
         git.clone();
         const branches = git.listBranches(downstream.branches);
         let downstreamData = {
@@ -18,6 +20,7 @@ async function action(octokit) {
             commits: [],
         };
         for (const branch of branches) {
+            startGroup(`Processing branch ${branch}`);
             git.checkout(branch);
             const commits = git.log(config.lookupInterval);
             for (const commit of commits) {
@@ -56,7 +59,9 @@ async function action(octokit) {
                     pr: prData,
                 });
             }
+            endGroup();
         }
+        endGroup();
         data.push(downstreamData);
     }
     let db = [];
@@ -117,7 +122,6 @@ async function action(octokit) {
 }
 // TODO:
 // - Add summary message
-//! - warning -> info
 //! - group logs by branch
 // - add support for labels
 //! - add tests
