@@ -35871,6 +35871,7 @@ async function action(octokit) {
         (0,core.startGroup)(`Processing ${DownstreamOwnerAndRepo}`);
         git.clone();
         const branches = git.listBranches(downstream.branches);
+        (0,core.endGroup)();
         let downstreamData = {
             name: DownstreamOwnerAndRepo,
             alias: downstream['status-title'],
@@ -35918,7 +35919,6 @@ async function action(octokit) {
             }
             (0,core.endGroup)();
         }
-        (0,core.endGroup)();
         data.push(downstreamData);
     }
     let db = [];

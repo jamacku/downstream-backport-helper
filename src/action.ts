@@ -30,6 +30,7 @@ async function action(octokit: CustomOctokit): Promise<void> {
     startGroup(`Processing ${DownstreamOwnerAndRepo}`);
     git.clone();
     const branches = git.listBranches(downstream.branches);
+    endGroup();
 
     let downstreamData: Downstream = {
       name: DownstreamOwnerAndRepo,
@@ -97,7 +98,6 @@ async function action(octokit: CustomOctokit): Promise<void> {
       }
       endGroup();
     }
-    endGroup();
     data.push(downstreamData);
   }
 
