@@ -1,6 +1,12 @@
 import { describe, expect, test } from 'vitest';
 
-import { getArrayIndex, getCherryPicks } from '../../src/util';
+import {
+  getArrayIndex,
+  getBranchUrl,
+  getCherryPicks,
+  getRepoUrl,
+  getTagUrl,
+} from '../../src/util';
 
 describe('Util functions', () => {
   test('getCherryPicks()', () => {
@@ -24,5 +30,23 @@ describe('Util functions', () => {
     expect(getArrayIndex(array, 'a', 1)).toEqual(0);
     expect(getArrayIndex(array, 'a', 2)).toEqual(-1);
     expect(getArrayIndex(array, 'a', 3)).toEqual(1);
+  });
+
+  test('getRepoUrl()', () => {
+    expect(getRepoUrl('owner/repo')).toMatchInlineSnapshot(
+      `"https://github.com/owner/repo"`
+    );
+  });
+
+  test('getBranchUrl()', () => {
+    expect(getBranchUrl('main', 'owner/repo')).toMatchInlineSnapshot(
+      `"https://github.com/owner/repo/tree/main"`
+    );
+  });
+
+  test('getTagUrl()', () => {
+    expect(getTagUrl('v258', 'owner/repo')).toMatchInlineSnapshot(
+      `"https://github.com/owner/repo/releases/tag/v258"`
+    );
   });
 });
